@@ -6,9 +6,13 @@ HeadHunter (hh.ru) vacancies fetcher via public API.
 Usage examples:
   python3 scripts/hh_fetch.py --text "Product Manager" --areas 1,2 --per-page 100 --delay 0.5
   python3 scripts/hh_fetch.py --text "Data Scientist" --areas 1 --date-from 2025-09-01 --date-to 2025-09-24
+  # Save Parquet and enrich with details
+  python3 scripts/hh_fetch.py --text "Analyst" --areas 1 --parquet --details
 
 Defaults:
   - Saves CSV into ./output/hh_vacancies_<timestamp>.csv
+  - Optional Parquet output with --parquet (requires pandas+pyarrow)
+  - Optional per-vacancy details enrichment with --details
   - Respects API pagination; backs off on HTTP 429/5xx
 
 Notes:
@@ -62,6 +66,21 @@ def parse_args() -> argparse.Namespace:
         help="Output CSV path. Default: ./output/hh_vacancies_<timestamp>.csv",
     )
     parser.add_argument(
+        "--parquet",
+        action="store_true",
+        help="Also save results to Parquet (requires pandas & pyarrow)",
+    )
+    parser.add_argument(
+        "--parquet-out",
+        default=None,
+        help="Parquet output path. Default mirrors CSV name with .parquet",
+    )
+    parser.add_argument(
+        "--details",
+        action="store_true",
+        help="Fetch /vacancies/{id} for richer fields (slower)",
+    )
+    parser.add_argument(
         "--user-agent",
         default="GlossaryMetricsVacFetcher/1.0 (+contact: your-email@example.com)",
         help="HTTP User-Agent to send in requests",
@@ -94,6 +113,25 @@ def request_with_backoff(url: str, params: Dict[str, Any], headers: Dict[str, st
     # last try
     resp.raise_for_status()
     return resp  # for type checker
+
+
+def get_detail_with_backoff(vacancy_id: str, headers: Dict[str, str], max_retries: int = 5) -> Optional[Dict[str, Any]]:
+    url = f"https://api.hh.ru/vacancies/{vacancy_id}"
+    backoff = 1.0
+    for _ in range(max_retries):
+        r = requests.get(url, headers=headers, timeout=30)
+        if r.status_code == 200:
+            try:
+                return r.json()
+            except Exception:
+                return None
+        if r.status_code in (429, 500, 502, 503, 504):
+            time.sleep(backoff)
+            backoff = min(backoff * 2, 30.0)
+            continue
+        # other errors: give up for this vacancy only
+        return None
+    return None
 
 
 def iter_vacancies(
@@ -142,11 +180,23 @@ def iter_vacancies(
             time.sleep(delay)
 
 
-def flatten_item(item: Dict[str, Any]) -> Dict[str, Any]:
+def flatten_item(item: Dict[str, Any], detail: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     salary = item.get("salary") or {}
     employer = item.get("employer") or {}
     area = item.get("area") or {}
     snippet = item.get("snippet") or {}
+
+    detail_desc_html: Optional[str] = None
+    detail_key_skills: Optional[str] = None
+    detail_prof_roles: Optional[str] = None
+    if detail:
+        detail_desc_html = detail.get("description")
+        ks = detail.get("key_skills") or []
+        if isinstance(ks, list):
+            detail_key_skills = ", ".join([str(x.get("name")) for x in ks if isinstance(x, dict)])
+        pr = detail.get("professional_roles") or []
+        if isinstance(pr, list):
+            detail_prof_roles = ", ".join([str(x.get("name")) for x in pr if isinstance(x, dict)])
 
     return {
         "id": item.get("id"),
@@ -165,6 +215,10 @@ def flatten_item(item: Dict[str, Any]) -> Dict[str, Any]:
         "employment": (item.get("employment") or {}).get("name"),
         "requirement": snippet.get("requirement"),
         "responsibility": snippet.get("responsibility"),
+        # details
+        "detail_description_html": detail_desc_html,
+        "detail_key_skills": detail_key_skills,
+        "detail_professional_roles": detail_prof_roles,
     }
 
 
@@ -194,26 +248,60 @@ def main() -> None:
         "employment",
         "requirement",
         "responsibility",
+        "detail_description_html",
+        "detail_key_skills",
+        "detail_professional_roles",
     ]
 
     total = 0
+    rows: List[Dict[str, Any]] = []
+    headers = {"User-Agent": args.user_agent}
+    for item in iter_vacancies(
+        query_text=args.text,
+        area_ids=area_ids,
+        per_page=args.per_page,
+        user_agent=args.user_agent,
+        date_from=args.date_from,
+        date_to=args.date_to,
+        delay=args.delay,
+        max_pages=args.max_pages,
+    ):
+        detail_obj: Optional[Dict[str, Any]] = None
+        if args.details and item.get("id"):
+            detail_obj = get_detail_with_backoff(str(item.get("id")), headers=headers)
+            # be nice to API
+            time.sleep(max(args.delay, 0.25))
+        rows.append(flatten_item(item, detail=detail_obj))
+        total += 1
+
+    # CSV output
     with open(out_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        for item in iter_vacancies(
-            query_text=args.text,
-            area_ids=area_ids,
-            per_page=args.per_page,
-            user_agent=args.user_agent,
-            date_from=args.date_from,
-            date_to=args.date_to,
-            delay=args.delay,
-            max_pages=args.max_pages,
-        ):
-            writer.writerow(flatten_item(item))
-            total += 1
-
+        writer.writerows(rows)
     print(f"Saved {total} rows to {out_path}")
+
+    # Optional Parquet output
+    if args.parquet:
+        parquet_path = args.parquet_out
+        if not parquet_path:
+            parquet_path = os.path.splitext(out_path)[0] + ".parquet"
+        try:
+            import pandas as pd  # type: ignore
+        except Exception:
+            sys.stderr.write(
+                "pandas is required for --parquet. Install with: pip install pandas pyarrow\n"
+            )
+            return
+        df = pd.DataFrame(rows)
+        try:
+            df.to_parquet(parquet_path, index=False)
+        except Exception as exc:
+            sys.stderr.write(
+                f"Failed to write Parquet at {parquet_path}: {exc}\n"
+            )
+            return
+        print(f"Saved Parquet to {parquet_path}")
 
 
 if __name__ == "__main__":

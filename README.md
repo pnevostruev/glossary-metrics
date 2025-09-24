@@ -13,6 +13,7 @@ Script: `scripts/hh_fetch.py`
 - Example:
   - `python3 scripts/hh_fetch.py --text "Product Manager" --areas 1,2 --per-page 100 --delay 0.5`
   - `python3 scripts/hh_fetch.py --text "Data Scientist" --areas 1 --date-from 2025-09-01 --date-to 2025-09-24`
+  - `python3 scripts/hh_fetch.py --text "Analyst" --areas 1 --parquet --details`
 - Common flags:
   - `--text` search query (required)
   - `--areas` comma-separated area IDs (default `1`)
@@ -21,6 +22,9 @@ Script: `scripts/hh_fetch.py`
   - `--delay` seconds between requests (default 0.5)
   - `--out` custom CSV path
   - `--user-agent` custom UA string
+  - `--parquet` also save `.parquet` (requires `pandas` and `pyarrow`)
+  - `--parquet-out` custom Parquet path
+  - `--details` fetch per-vacancy details (`/vacancies/{id}`) and enrich rows
 
 Notes:
 - Please use the official API respectfully; handle rate limits (the script has backoff).
