@@ -157,6 +157,8 @@ def iter_vacancies(
     date_to: Optional[str],
     delay: float,
     max_pages: Optional[int],
+    employment_filters: Optional[List[str]] = None,
+    schedule_filters: Optional[List[str]] = None,
 ) -> Iterable[Dict[str, Any]]:
     headers = {
         "User-Agent": user_agent,
@@ -181,11 +183,10 @@ def iter_vacancies(
             if date_to:
                 params["date_to"] = date_to
             # filters
-            if args_employment:
-                # repeated keys supported by requests when value is list
-                params["employment"] = args_employment
-            if args_schedule:
-                params["schedule"] = args_schedule
+            if employment_filters:
+                params["employment"] = employment_filters
+            if schedule_filters:
+                params["schedule"] = schedule_filters
 
             resp = request_with_backoff(API_URL, params=params, headers=headers)
             data = resp.json()
@@ -328,6 +329,8 @@ def main() -> None:
             date_to=w_to,
             delay=args.delay,
             max_pages=args.max_pages,
+            employment_filters=args_employment,
+            schedule_filters=args_schedule,
         ):
             detail_obj: Optional[Dict[str, Any]] = None
             if args.details and item.get("id"):
