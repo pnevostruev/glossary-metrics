@@ -63,6 +63,16 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--date-to", dest="date_to", default=None, help="YYYY-MM-DD filter")
     parser.add_argument("--last-days", dest="last_days", type=int, default=None, help="Fetch last N days (mutually exclusive with date-from/to)")
     parser.add_argument("--window-days", dest="window_days", type=int, default=1, help="Split period into N-day windows (default: 1)")
+    parser.add_argument(
+        "--employment",
+        default=None,
+        help="Employment filter(s), comma-separated. Examples: part,full,project,volunteer,probation",
+    )
+    parser.add_argument(
+        "--schedule",
+        default=None,
+        help="Schedule filter(s), comma-separated. Examples: fullDay,shift,flexible,remote,flyInFlyOut",
+    )
     parser.add_argument("--delay", type=float, default=0.5, help="Delay between requests in seconds")
     parser.add_argument(
         "--out",
@@ -160,15 +170,22 @@ def iter_vacancies(
             if max_pages is not None and page > max_pages:
                 break
             params: Dict[str, Any] = {
-                "text": query_text,
                 "area": area,
                 "per_page": per_page,
                 "page": page,
             }
+            if query_text.strip():
+                params["text"] = query_text.strip()
             if date_from:
                 params["date_from"] = date_from
             if date_to:
                 params["date_to"] = date_to
+            # filters
+            if args_employment:
+                # repeated keys supported by requests when value is list
+                params["employment"] = args_employment
+            if args_schedule:
+                params["schedule"] = args_schedule
 
             resp = request_with_backoff(API_URL, params=params, headers=headers)
             data = resp.json()
@@ -268,6 +285,13 @@ def main() -> None:
         "HH-User-Agent": args.user_agent,
         "Accept": "application/json",
     }
+    # prepare filters lists
+    args_employment: Optional[List[str]] = None
+    if args.employment:
+        args_employment = [x.strip() for x in args.employment.split(",") if x.strip()]
+    args_schedule: Optional[List[str]] = None
+    if args.schedule:
+        args_schedule = [x.strip() for x in args.schedule.split(",") if x.strip()]
     # Determine date windows
     if args.last_days is not None:
         if args.date_from or args.date_to:
