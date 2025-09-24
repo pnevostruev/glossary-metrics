@@ -8,6 +8,8 @@ Usage examples:
   python3 scripts/hh_fetch.py --text "Data Scientist" --areas 1 --date-from 2025-09-01 --date-to 2025-09-24
   # Save Parquet and enrich with details
   python3 scripts/hh_fetch.py --text "Analyst" --areas 1 --parquet --details
+  # Last 14 days, daily windows
+  python3 scripts/hh_fetch.py --areas 1,2 --last-days 14 --window-days 1
 
 Defaults:
   - Saves CSV into ./output/hh_vacancies_<timestamp>.csv
@@ -44,7 +46,7 @@ API_URL = "https://api.hh.ru/vacancies"
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Fetch vacancies from hh.ru API and save to CSV")
-    parser.add_argument("--text", required=True, help="Search text (query)")
+    parser.add_argument("--text", required=False, default="", help="Search text (query). Optional")
     parser.add_argument(
         "--areas",
         default="1",
@@ -59,6 +61,8 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--date-from", dest="date_from", default=None, help="YYYY-MM-DD filter")
     parser.add_argument("--date-to", dest="date_to", default=None, help="YYYY-MM-DD filter")
+    parser.add_argument("--last-days", dest="last_days", type=int, default=None, help="Fetch last N days (mutually exclusive with date-from/to)")
+    parser.add_argument("--window-days", dest="window_days", type=int, default=1, help="Split period into N-day windows (default: 1)")
     parser.add_argument("--delay", type=float, default=0.5, help="Delay between requests in seconds")
     parser.add_argument(
         "--out",
@@ -144,7 +148,11 @@ def iter_vacancies(
     delay: float,
     max_pages: Optional[int],
 ) -> Iterable[Dict[str, Any]]:
-    headers = {"User-Agent": user_agent}
+    headers = {
+        "User-Agent": user_agent,
+        "HH-User-Agent": user_agent,
+        "Accept": "application/json",
+    }
     for area in area_ids:
         page = 0
         total_pages_for_area: Optional[int] = None
@@ -255,24 +263,54 @@ def main() -> None:
 
     total = 0
     rows: List[Dict[str, Any]] = []
-    headers = {"User-Agent": args.user_agent}
-    for item in iter_vacancies(
-        query_text=args.text,
-        area_ids=area_ids,
-        per_page=args.per_page,
-        user_agent=args.user_agent,
-        date_from=args.date_from,
-        date_to=args.date_to,
-        delay=args.delay,
-        max_pages=args.max_pages,
-    ):
-        detail_obj: Optional[Dict[str, Any]] = None
-        if args.details and item.get("id"):
-            detail_obj = get_detail_with_backoff(str(item.get("id")), headers=headers)
-            # be nice to API
-            time.sleep(max(args.delay, 0.25))
-        rows.append(flatten_item(item, detail=detail_obj))
-        total += 1
+    headers = {
+        "User-Agent": args.user_agent,
+        "HH-User-Agent": args.user_agent,
+        "Accept": "application/json",
+    }
+    # Determine date windows
+    if args.last_days is not None:
+        if args.date_from or args.date_to:
+            sys.stderr.write("Provide either --last-days or --date-from/--date-to, not both.\n")
+            sys.exit(2)
+        end_date = dt.date.today()
+        start_date = end_date - dt.timedelta(days=max(args.last_days, 0))
+    else:
+        start_date = dt.date.fromisoformat(args.date_from) if args.date_from else None
+        end_date = dt.date.fromisoformat(args.date_to) if args.date_to else None
+
+    def date_str(d: Optional[dt.date]) -> Optional[str]:
+        return d.isoformat() if d else None
+
+    # Build list of (from,to) windows
+    windows: List[tuple[Optional[str], Optional[str]]] = []
+    if start_date and end_date:
+        wd = max(1, int(args.window_days))
+        cur = start_date
+        while cur <= end_date:
+            w_end = min(cur + dt.timedelta(days=wd - 1), end_date)
+            windows.append((date_str(cur), date_str(w_end)))
+            cur = w_end + dt.timedelta(days=1)
+    else:
+        windows.append((date_str(start_date), date_str(end_date)))
+
+    for (w_from, w_to) in windows:
+        for item in iter_vacancies(
+            query_text=args.text,
+            area_ids=area_ids,
+            per_page=args.per_page,
+            user_agent=args.user_agent,
+            date_from=w_from,
+            date_to=w_to,
+            delay=args.delay,
+            max_pages=args.max_pages,
+        ):
+            detail_obj: Optional[Dict[str, Any]] = None
+            if args.details and item.get("id"):
+                detail_obj = get_detail_with_backoff(str(item.get("id")), headers=headers)
+                time.sleep(max(args.delay, 0.25))
+            rows.append(flatten_item(item, detail=detail_obj))
+            total += 1
 
     # CSV output
     with open(out_path, "w", newline="", encoding="utf-8") as f:
