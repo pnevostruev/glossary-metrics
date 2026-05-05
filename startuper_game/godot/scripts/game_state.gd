@@ -1126,7 +1126,6 @@ func _grant_report_success_probability() -> float:
 func _build_grant_report_verdict_event() -> Dictionary:
 	var sk: String = str(get_stage_info().get("key", "fit"))
 	var ok: bool = randf() < _grant_report_success_probability()
-	var amt: int = int(round(maxf(pending_grant_report_amount, grant_report_amount)))
 	if ok:
 		return {
 			"script": "grant_report_verdict",

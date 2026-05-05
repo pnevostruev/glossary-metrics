@@ -2054,14 +2054,18 @@ func _make_achievement_icon_tile(texture_path: String, tooltip_txt: String) -> C
 	cc.set_anchors_preset(Control.PRESET_FULL_RECT)
 	cc.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	var ok_path: bool = texture_path != "" and ResourceLoader.exists(texture_path)
-	if ok_path:
-		var tr := TextureRect.new()
-		tr.texture = load(texture_path)
-		tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		tr.custom_minimum_size = ACHIEVEMENT_ICON_DISPLAY_SIZE - Vector2(10, 10)
-		cc.add_child(tr)
+	## Для импортированных PNG `ResourceLoader.exists` иногда даёт false, хотя `load` работает — не полагаемся только на exists.
+	var tex_res: Resource = null
+	if texture_path.strip_edges() != "":
+		tex_res = ResourceLoader.load(texture_path, "", ResourceLoader.CACHE_MODE_REUSE)
+	var ok_tex: bool = tex_res is Texture2D
+	if ok_tex:
+		var tex_rect := TextureRect.new()
+		tex_rect.texture = tex_res as Texture2D
+		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		tex_rect.custom_minimum_size = ACHIEVEMENT_ICON_DISPLAY_SIZE - Vector2(10, 10)
+		cc.add_child(tex_rect)
 	else:
 		var ph := Label.new()
 		ph.text = "?"
@@ -2122,50 +2126,50 @@ func _resolve_achievement_entry(display_item: String) -> Dictionary:
 			tex = "res://assets/icons/icon_infra_masseur_64.png"
 			tip = "В офисе есть массажист."
 		"Экспертный контур":
-			tex = ""
+			tex = "res://assets/icons/icon_experts_pipeline_64.png"
 			tip = "Построена линия работы с экспертами и адвайзерами."
 		"Заявка на грант":
-			tex = ""
+			tex = "res://assets/icons/icon_grant_apply_64.png"
 			tip = "Подана заявка на грант; ждём вердикт в нежданчике."
 		"Отчётность обязательна":
-			tex = ""
+			tex = "res://assets/icons/icon_grant_report_required_64.png"
 			tip = "Требуется отчётность по гранту."
 		"Отчётность на проверке":
-			tex = ""
+			tex = "res://assets/icons/icon_grant_report_pending_64.png"
 			tip = "Отчётность по гранту отправлена на проверку."
 		"Заявка в акселератор":
-			tex = ""
+			tex = "res://assets/icons/icon_accel_apply_64.png"
 			tip = "Подана заявка в акселератор."
 		"Growth-агентство":
-			tex = ""
+			tex = "res://assets/icons/icon_channel_growth_agency_64.png"
 			tip = "Подключено growth-агентство."
 		"Инфлюенсер-канал":
-			tex = ""
+			tex = "res://assets/icons/icon_channel_influencer_64.png"
 			tip = "Есть канал через инфлюенсеров."
 		"Telegram-канал":
-			tex = ""
+			tex = "res://assets/icons/icon_channel_telegram_64.png"
 			tip = "Есть telegram-канал про стартап."
 		"Инвестконтакт":
-			tex = ""
+			tex = "res://assets/icons/icon_channel_investor_contact_64.png"
 			tip = "Есть контакт с инвесторами."
 		"Посадочная и оферта":
 			tip = "Есть посадочная и оферта (правовая база лендинга)."
-			tex = ""
+			tex = "res://assets/icons/icon_legal_landing_offer_64.png"
 		"В рынке":
 			tip = "Продукт выведен на рынок."
-			tex = ""
+			tex = "res://assets/icons/icon_legal_market_live_64.png"
 		"Комплаенс-база":
 			tip = "Сформирована база комплаенса (репутация и удержание)."
-			tex = ""
+			tex = "res://assets/icons/icon_legal_compliance_base_64.png"
 		"Прототип":
 			tip = "Есть играбельный прототип продукта."
-			tex = ""
+			tex = "res://assets/icons/icon_product_prototype_64.png"
 		"Тех. MVP":
 			tip = "Есть технический MVP (backend/данные)."
-			tex = ""
+			tex = "res://assets/icons/icon_product_tech_mvp_64.png"
 		"Запуск в рынок":
 			tip = "Запуск в рынок уже произошёл."
-			tex = ""
+			tex = "res://assets/icons/icon_product_launch_64.png"
 		_:
 			pass
 
@@ -2174,29 +2178,40 @@ func _resolve_achievement_entry(display_item: String) -> Dictionary:
 		tip = "В команде есть друг: %s." % item
 
 	if item.begins_with("Грант x"):
+		tex = "res://assets/icons/icon_grant_won_64.png"
 		tip = "Выигран грант (учёт): %s." % item
 
 	if item.begins_with("Акселератор"):
+		tex = "res://assets/icons/icon_accel_active_64.png"
 		tip = "Акселератор активен: %s." % item
 
 	if item == "Выручка >= 1k":
+		tex = "res://assets/icons/icon_fin_revenue_milestone_64.png"
 		tip = "MRR достиг порога 1 000 ₽/мес."
 	if item == "Выручка >= 5k":
+		tex = "res://assets/icons/icon_fin_revenue_milestone_64.png"
 		tip = "MRR достиг порога 5 000 ₽/мес."
 	if item == "Кэш >= 100k (вернули)":
+		tex = "res://assets/icons/icon_fin_cash_recovery_64.png"
 		tip = "После провала ниже порога удалось снова набрать ≥ 100 000 ₽ на счёте."
 	if item == "Кэш >= 250k":
+		tex = "res://assets/icons/icon_fin_cash_recovery_64.png"
 		tip = "На счёте не менее 250 000 ₽."
 
 	if item.begins_with("CustDev "):
+		tex = "res://assets/icons/icon_product_custdev_64.png"
 		tip = "CustDev: проведённые интервью (%s)." % item
 	if item.begins_with("Пилоты "):
+		tex = "res://assets/icons/icon_product_pilots_64.png"
 		tip = "Шагов пилота выполнено (%s)." % item
 	if item.begins_with("Тесты прототипа "):
+		tex = "res://assets/icons/icon_product_proto_tests_64.png"
 		tip = "Пользователей в прототипных тестах (%s)." % item
 	if item.begins_with("Холодные касания "):
+		tex = "res://assets/icons/icon_product_cold_outreach_64.png"
 		tip = "Холодные касания выполнены (%s)." % item
 	if item.begins_with("Экспертные интервью "):
+		tex = "res://assets/icons/icon_product_expert_interviews_64.png"
 		tip = "Интервью с экспертами проведены (%s)." % item
 
 	return {"texture_path": tex, "tooltip": tip}
