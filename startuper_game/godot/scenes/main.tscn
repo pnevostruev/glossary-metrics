@@ -1,0 +1,1217 @@
+[gd_scene load_steps=15 format=3 uid="uid://m4x52g8x3h76"]
+
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_0rja8"]
+[ext_resource type="Script" path="res://scripts/sprint_slot.gd" id="2_sprint"]
+[ext_resource type="Script" path="res://scripts/backlog_row.gd" id="3_backlog"]
+[ext_resource type="Texture2D" path="res://assets/build.png" id="4_stage_build"]
+[ext_resource type="Texture2D" path="res://assets/fit.png" id="5_stage_fit"]
+[ext_resource type="Texture2D" path="res://assets/scale.png" id="6_stage_scale"]
+[ext_resource type="Texture2D" path="res://assets/mamkin_hero.png" id="7_mamkin"]
+[ext_resource type="Texture2D" path="res://assets/investor.svg" id="8_investor"]
+[ext_resource type="Texture2D" path="res://assets/friday_mechanic_intro.png" id="9_friday_mechanic"]
+[ext_resource type="AudioStreamMP3" path="res://assets/music/pixel_profit.mp3" id="10_bgm"]
+[ext_resource type="Texture2D" path="res://assets/mamkin_game_over_burnout.png" id="11_go_burn"]
+[ext_resource type="Texture2D" path="res://assets/stage_intro_preview_build.jpg" id="12_st_prev_b"]
+[ext_resource type="Texture2D" path="res://assets/stage_intro_preview_fit.jpg" id="13_st_prev_f"]
+[ext_resource type="Texture2D" path="res://assets/stage_intro_preview_scale.jpg" id="14_st_prev_s"]
+[ext_resource type="Texture2D" path="res://assets/welcome_bg.png" id="15_welcome_bg"]
+
+[node name="Main" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_0rja8")
+
+[node name="BgMusic" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("10_bgm")
+volume_db = -8.0
+
+[node name="GameOverMusic" type="AudioStreamPlayer" parent="."]
+volume_db = -4.0
+bus = &"Master"
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_stage_build")
+stretch_mode = 6
+modulate = Color(0.82, 0.84, 0.88, 1)
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 8.0
+offset_right = -10.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Root" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="TopBar" type="PanelContainer" parent="Margin/Root"]
+layout_mode = 2
+
+[node name="TopBarRow" type="HBoxContainer" parent="Margin/Root/TopBar"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="HeaderAvatar" type="TextureRect" parent="Margin/Root/TopBar/TopBarRow"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+texture = ExtResource("7_mamkin")
+texture_filter = 1
+expand_mode = 1
+stretch_mode = 5
+
+[node name="HeaderText" type="VBoxContainer" parent="Margin/Root/TopBar/TopBarRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="Title" type="Label" parent="Margin/Root/TopBar/TopBarRow/HeaderText"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 42
+text = "Мамкин Единорог"
+
+[node name="Subtitle" type="Label" parent="Margin/Root/TopBar/TopBarRow/HeaderText"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 21
+text = "Ироничный сим про техстартап: спринт -> Пятничный нежданчик -> последствия."
+
+[node name="LogToggle" type="Button" parent="Margin/Root/TopBar/TopBarRow"]
+visible = false
+layout_mode = 2
+custom_minimum_size = Vector2(140, 46)
+theme_override_font_sizes/font_size = 18
+text = "📘 Лог"
+
+[node name="MainColumns" type="HBoxContainer" parent="Margin/Root"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_horizontal = 3
+theme_override_constants/separation = 14
+
+[node name="SprintPanel" type="PanelContainer" parent="Margin/Root/MainColumns"]
+layout_mode = 2
+size_flags_horizontal = 0
+custom_minimum_size = Vector2(300, 0)
+
+[node name="SprintBox" type="VBoxContainer" parent="Margin/Root/MainColumns/SprintPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Tasks" type="Label" parent="Margin/Root/MainColumns/SprintPanel/SprintBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Спринт: бэклог → 3 слота"
+
+[node name="BacklogScroll" type="ScrollContainer" parent="Margin/Root/MainColumns/SprintPanel/SprintBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="BacklogRow" type="VBoxContainer" parent="Margin/Root/MainColumns/SprintPanel/SprintBox/BacklogScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+script = ExtResource("3_backlog")
+
+[node name="SlotsHint" type="Label" parent="Margin/Root/MainColumns/SprintPanel/SprintBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Перетащи карточку в слот. Обратно в бэклог — тоже перетаскиванием."
+
+[node name="SlotsRow" type="HBoxContainer" parent="Margin/Root/MainColumns/SprintPanel/SprintBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Slot0" type="PanelContainer" parent="Margin/Root/MainColumns/SprintPanel/SprintBox/SlotsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+script = ExtResource("2_sprint")
+slot_index = 0
+
+[node name="Slot1" type="PanelContainer" parent="Margin/Root/MainColumns/SprintPanel/SprintBox/SlotsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+script = ExtResource("2_sprint")
+slot_index = 1
+
+[node name="Slot2" type="PanelContainer" parent="Margin/Root/MainColumns/SprintPanel/SprintBox/SlotsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+script = ExtResource("2_sprint")
+slot_index = 2
+
+[node name="NextWeek" type="Button" parent="Margin/Root/MainColumns/SprintPanel/SprintBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 64)
+theme_override_font_sizes/font_size = 22
+text = "Зафиксировать спринт (3/3)"
+
+[node name="CenterPanel" type="PanelContainer" parent="Margin/Root/MainColumns"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CenterBox" type="VBoxContainer" parent="Margin/Root/MainColumns/CenterPanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="PulseHeaderRow" type="HBoxContainer" parent="Margin/Root/MainColumns/CenterPanel/CenterBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="MetricsTitle" type="Label" parent="Margin/Root/MainColumns/CenterPanel/CenterBox/PulseHeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 26
+text = "Пульс стартапа"
+
+[node name="PulseModeToggle" type="Button" parent="Margin/Root/MainColumns/CenterPanel/CenterBox/PulseHeaderRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(210, 42)
+theme_override_font_sizes/font_size = 18
+text = "Режим: кратко"
+
+[node name="RiskBadge" type="Label" parent="Margin/Root/MainColumns/CenterPanel/CenterBox"]
+layout_mode = 2
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 17
+theme_override_constants/line_separation = 4
+text = "Риски"
+
+[node name="MetricsRow" type="HBoxContainer" parent="Margin/Root/MainColumns/CenterPanel/CenterBox"]
+layout_mode = 2
+size_flags_vertical = 3
+alignment = 0
+theme_override_constants/separation = 14
+
+[node name="MetricsLeft" type="RichTextLabel" parent="Margin/Root/MainColumns/CenterPanel/CenterBox/MetricsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(140, 180)
+bbcode_enabled = true
+scroll_active = false
+fit_content = false
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 16
+theme_override_constants/line_separation = 4
+text = ""
+
+[node name="MetricsRight" type="RichTextLabel" parent="Margin/Root/MainColumns/CenterPanel/CenterBox/MetricsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(140, 180)
+bbcode_enabled = true
+scroll_active = false
+fit_content = false
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 16
+theme_override_constants/line_separation = 4
+text = ""
+
+[node name="AchievementsBarRow" type="HBoxContainer" parent="Margin/Root/MainColumns/CenterPanel/CenterBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="AchievementsScroll" type="ScrollContainer" parent="Margin/Root/MainColumns/CenterPanel/CenterBox/AchievementsBarRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 64)
+size_flags_vertical = 0
+
+[node name="AchievementGroupsRoot" type="VBoxContainer" parent="Margin/Root/MainColumns/CenterPanel/CenterBox/AchievementsBarRow/AchievementsScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_constants/separation = 14
+
+[node name="LogToggleBottom" type="Button" parent="Margin/Root/MainColumns/CenterPanel/CenterBox/AchievementsBarRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(110, 46)
+theme_override_font_sizes/font_size = 18
+text = "Лог"
+
+[node name="LaunchNow" type="Button" parent="Margin/Root/MainColumns/CenterPanel/CenterBox"]
+visible = false
+layout_mode = 2
+custom_minimum_size = Vector2(0, 52)
+theme_override_font_sizes/font_size = 20
+text = "Выйти на рынок сейчас (если готов MVP и команда)"
+
+[node name="LogScroll" type="ScrollContainer" parent="Margin/Root/MainColumns/CenterPanel/CenterBox"]
+layout_mode = 2
+visible = false
+
+[node name="Log" type="Label" parent="Margin/Root/MainColumns/CenterPanel/CenterBox/LogScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 2
+theme_override_font_sizes/font_size = 19
+text = "Лог недели"
+
+[node name="LegacyEventHost" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+visible = false
+
+[node name="EventPanel" type="PanelContainer" parent="LegacyEventHost"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 120.0
+offset_right = -12.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 2
+custom_minimum_size = Vector2(240, 0)
+
+[node name="EventBox" type="VBoxContainer" parent="LegacyEventHost/EventPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="CastRow" type="HBoxContainer" parent="LegacyEventHost/EventPanel/EventBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="InvestorAvatar" type="TextureRect" parent="LegacyEventHost/EventPanel/EventBox/CastRow"]
+custom_minimum_size = Vector2(44, 44)
+layout_mode = 2
+modulate = Color(0.92, 0.88, 1, 1)
+texture = ExtResource("8_investor")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="EventTitle" type="Label" parent="LegacyEventHost/EventPanel/EventBox/CastRow"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Пятничный нежданчик"
+
+[node name="SpeakerChip" type="Label" parent="LegacyEventHost/EventPanel/EventBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Говорит: —"
+
+[node name="EventScroll" type="ScrollContainer" parent="LegacyEventHost/EventPanel/EventBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Event" type="Label" parent="LegacyEventHost/EventPanel/EventBox/EventScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 2
+theme_override_font_sizes/font_size = 19
+text = "Событие"
+
+[node name="EventButtons" type="VBoxContainer" parent="LegacyEventHost/EventPanel/EventBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ChooseA" type="Button" parent="LegacyEventHost/EventPanel/EventBox/EventButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 56)
+theme_override_font_sizes/font_size = 19
+text = "Выбрать вариант A"
+
+[node name="ChooseB" type="Button" parent="LegacyEventHost/EventPanel/EventBox/EventButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 56)
+theme_override_font_sizes/font_size = 19
+text = "Выбрать вариант B"
+
+[node name="StageIntroOverlay" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="StageIntroArt" type="TextureRect" parent="StageIntroOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("15_welcome_bg")
+ignore_texture_size = true
+stretch_mode = 6
+modulate = Color(0.972, 0.983, 1, 1)
+
+[node name="Dim" type="ColorRect" parent="StageIntroOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.48)
+
+[node name="StageIntroMascot" type="TextureRect" parent="StageIntroOverlay"]
+layout_mode = 1
+anchors_preset = 0
+anchor_left = 0.0
+anchor_top = 1.0
+anchor_right = 0.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = -292.0
+offset_right = 236.0
+offset_bottom = -12.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_filter = 2
+texture = ExtResource("7_mamkin")
+texture_filter = 1
+expand_mode = 1
+stretch_mode = 5
+
+[node name="DialogWrap" type="CenterContainer" parent="StageIntroOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dialog" type="PanelContainer" parent="StageIntroOverlay/DialogWrap"]
+custom_minimum_size = Vector2(720, 0)
+layout_mode = 2
+
+[node name="DialogBox" type="VBoxContainer" parent="StageIntroOverlay/DialogWrap/Dialog"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="StagePillRow" type="HBoxContainer" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 6
+
+[node name="PillBuild" type="Label" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/StagePillRow"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "BUILD"
+
+[node name="Sep1" type="Label" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/StagePillRow"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "→"
+
+[node name="PillFit" type="Label" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/StagePillRow"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Fit"
+
+[node name="Sep2" type="Label" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/StagePillRow"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "→"
+
+[node name="PillScale" type="Label" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/StagePillRow"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Scale"
+
+[node name="WelcomeIntroPage" type="MarginContainer" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox"]
+visible = false
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
+
+[node name="WelcomeIntroColumn" type="VBoxContainer" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/WelcomeIntroPage"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 18
+
+[node name="WelcomeMainRow" type="HBoxContainer" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/WelcomeIntroPage/WelcomeIntroColumn"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 24
+alignment = 0
+
+[node name="WelcomeMascot" type="TextureRect" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/WelcomeIntroPage/WelcomeIntroColumn/WelcomeMainRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 0.4
+texture = ExtResource("7_mamkin")
+texture_filter = 1
+expand_mode = 1
+stretch_mode = 5
+
+[node name="WelcomeTextCol" type="VBoxContainer" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/WelcomeIntroPage/WelcomeIntroColumn/WelcomeMainRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.6
+theme_override_constants/separation = 14
+
+[node name="WelcomeTitle" type="Label" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/WelcomeIntroPage/WelcomeIntroColumn/WelcomeMainRow/WelcomeTextCol"]
+layout_mode = 2
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 32
+text = "Вы — Мамкин. И вы построите «Единорога»!"
+
+[node name="WelcomeBodyScroll" type="ScrollContainer" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/WelcomeIntroPage/WelcomeIntroColumn/WelcomeMainRow/WelcomeTextCol"]
+custom_minimum_size = Vector2(0, 260)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="WelcomeBody" type="Label" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/WelcomeIntroPage/WelcomeIntroColumn/WelcomeMainRow/WelcomeTextCol/WelcomeBodyScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+autowrap_mode = 3
+vertical_alignment = 0
+theme_override_font_sizes/font_size = 18
+theme_override_constants/line_separation = 6
+text = ""
+
+[node name="StageCards" type="VBoxContainer" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/WelcomeIntroPage/WelcomeIntroColumn/WelcomeMainRow/WelcomeTextCol"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="StageCardBuild" type="PanelContainer" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/WelcomeIntroPage/WelcomeIntroColumn/WelcomeMainRow/WelcomeTextCol/StageCards"]
+layout_mode = 2
+
+[node name="Pad" type="MarginContainer" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/WelcomeIntroPage/WelcomeIntroColumn/WelcomeMainRow/WelcomeTextCol/StageCards/StageCardBuild"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="Text" type="Label" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/WelcomeIntroPage/WelcomeIntroColumn/WelcomeMainRow/WelcomeTextCol/StageCards/StageCardBuild/Pad"]
+layout_mode = 2
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 18
+text = "BUILD — собрать MVP, команду и выйти в рынок."
+
+[node name="StageCardFit" type="PanelContainer" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/WelcomeIntroPage/WelcomeIntroColumn/WelcomeMainRow/WelcomeTextCol/StageCards"]
+layout_mode = 2
+
+[node name="Pad" type="MarginContainer" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/WelcomeIntroPage/WelcomeIntroColumn/WelcomeMainRow/WelcomeTextCol/StageCards/StageCardFit"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="Text" type="Label" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/WelcomeIntroPage/WelcomeIntroColumn/WelcomeMainRow/WelcomeTextCol/StageCards/StageCardFit/Pad"]
+layout_mode = 2
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 18
+text = "FIT — доказать PMF: активация и удержание."
+
+[node name="StageCardScale" type="PanelContainer" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/WelcomeIntroPage/WelcomeIntroColumn/WelcomeMainRow/WelcomeTextCol/StageCards"]
+layout_mode = 2
+
+[node name="Pad" type="MarginContainer" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/WelcomeIntroPage/WelcomeIntroColumn/WelcomeMainRow/WelcomeTextCol/StageCards/StageCardScale"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="Text" type="Label" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/WelcomeIntroPage/WelcomeIntroColumn/WelcomeMainRow/WelcomeTextCol/StageCards/StageCardScale/Pad"]
+layout_mode = 2
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 18
+text = "SCALE — масштабирование выручки без потери контроля."
+
+[node name="AlertBlock" type="PanelContainer" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/WelcomeIntroPage/WelcomeIntroColumn/WelcomeMainRow/WelcomeTextCol"]
+layout_mode = 2
+
+[node name="Pad" type="MarginContainer" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/WelcomeIntroPage/WelcomeIntroColumn/WelcomeMainRow/WelcomeTextCol/AlertBlock"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="Text" type="Label" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/WelcomeIntroPage/WelcomeIntroColumn/WelcomeMainRow/WelcomeTextCol/AlertBlock/Pad"]
+layout_mode = 2
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 18
+text = "ALERT: каждую неделю фиксируйте спринт, переживайте нежданчик и держите runway под контролем."
+
+[node name="WelcomeButtonRow" type="HBoxContainer" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/WelcomeIntroPage/WelcomeIntroColumn/WelcomeMainRow/WelcomeTextCol"]
+layout_mode = 2
+alignment = 0
+
+[node name="WelcomeNextButton" type="Button" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/WelcomeIntroPage/WelcomeIntroColumn/WelcomeMainRow/WelcomeTextCol/WelcomeButtonRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(380, 56)
+theme_override_font_sizes/font_size = 22
+text = "> Запустить_стартап.exe"
+
+[node name="StageIntroPage" type="VBoxContainer" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="StageIntroHero" type="HBoxContainer" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/StageIntroPage"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="StageIntroPreview" type="TextureRect" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/StageIntroPage/StageIntroHero"]
+custom_minimum_size = Vector2(300, 300)
+layout_mode = 2
+texture = ExtResource("12_st_prev_b")
+texture_filter = 1
+expand_mode = 1
+stretch_mode = 5
+
+[node name="StageIntroTextPanel" type="PanelContainer" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/StageIntroPage/StageIntroHero"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(360, 0)
+
+[node name="StageIntroTextCol" type="VBoxContainer" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/StageIntroPage/StageIntroHero/StageIntroTextPanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="StageBadge" type="Label" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/StageIntroPage/StageIntroHero/StageIntroTextPanel/StageIntroTextCol"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "ЭТАП"
+
+[node name="StageTitle" type="Label" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/StageIntroPage/StageIntroHero/StageIntroTextPanel/StageIntroTextCol"]
+layout_mode = 2
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 40
+text = "Build"
+
+[node name="StageGoalTitle" type="Label" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/StageIntroPage/StageIntroHero/StageIntroTextPanel/StageIntroTextCol"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Задача этапа"
+
+[node name="StageGoal" type="Label" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/StageIntroPage/StageIntroHero/StageIntroTextPanel/StageIntroTextCol"]
+layout_mode = 2
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 24
+text = "goal"
+
+[node name="StageIntroTitle" type="Label" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/StageIntroPage/StageIntroHero/StageIntroTextPanel/StageIntroTextCol"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Вводные"
+
+[node name="StageIntro" type="Label" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/StageIntroPage/StageIntroHero/StageIntroTextPanel/StageIntroTextCol"]
+layout_mode = 2
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 21
+theme_override_constants/line_separation = 5
+text = "intro"
+
+[node name="StageStartButton" type="Button" parent="StageIntroOverlay/DialogWrap/Dialog/DialogBox/StageIntroPage"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 62)
+theme_override_font_sizes/font_size = 24
+text = "Приступить"
+
+[node name="LogOverlay" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="Dim" type="ColorRect" parent="LogOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.72)
+
+[node name="Wrap" type="CenterContainer" parent="LogOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dialog" type="PanelContainer" parent="LogOverlay/Wrap"]
+custom_minimum_size = Vector2(860, 520)
+layout_mode = 2
+
+[node name="Box" type="VBoxContainer" parent="LogOverlay/Wrap/Dialog"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="LogHeroRow" type="HBoxContainer" parent="LogOverlay/Wrap/Dialog/Box"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="LogMascot" type="TextureRect" parent="LogOverlay/Wrap/Dialog/Box/LogHeroRow"]
+custom_minimum_size = Vector2(88, 88)
+layout_mode = 2
+texture = ExtResource("7_mamkin")
+texture_filter = 1
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LogTitleStack" type="VBoxContainer" parent="LogOverlay/Wrap/Dialog/Box/LogHeroRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="LogOverlay/Wrap/Dialog/Box/LogHeroRow/LogTitleStack"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 34
+text = "Лог сессии"
+
+[node name="Hint" type="Label" parent="LogOverlay/Wrap/Dialog/Box/LogHeroRow/LogTitleStack"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+text = "Текущий статус и история недель. «Сохранить лог» записывает файл в папку «Загрузки» (Downloads)."
+
+[node name="Scroll" type="ScrollContainer" parent="LogOverlay/Wrap/Dialog/Box"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Body" type="Label" parent="LogOverlay/Wrap/Dialog/Box/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Лог"
+
+[node name="Buttons" type="HBoxContainer" parent="LogOverlay/Wrap/Dialog/Box"]
+layout_mode = 2
+alignment = 2
+theme_override_constants/separation = 10
+
+[node name="Save" type="Button" parent="LogOverlay/Wrap/Dialog/Box/Buttons"]
+layout_mode = 2
+custom_minimum_size = Vector2(260, 54)
+theme_override_font_sizes/font_size = 21
+text = "Сохранить лог"
+
+[node name="Close" type="Button" parent="LogOverlay/Wrap/Dialog/Box/Buttons"]
+layout_mode = 2
+custom_minimum_size = Vector2(220, 54)
+theme_override_font_sizes/font_size = 21
+text = "Закрыть"
+
+[node name="WeekSummaryOverlay" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="Dim" type="ColorRect" parent="WeekSummaryOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.75)
+
+[node name="Wrap" type="MarginContainer" parent="WeekSummaryOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 28
+
+[node name="DialogCenter" type="CenterContainer" parent="WeekSummaryOverlay/Wrap"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Dialog" type="PanelContainer" parent="WeekSummaryOverlay/Wrap/DialogCenter"]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+custom_minimum_size = Vector2(1040, 680)
+
+[node name="Box" type="VBoxContainer" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="FridayIntroPage" type="VBoxContainer" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box"]
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 10
+
+[node name="FridayIntroTitle" type="Label" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/FridayIntroPage"]
+layout_mode = 2
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 24
+text = "Пятничный нежданчик"
+
+[node name="FridayIntroHero" type="HBoxContainer" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/FridayIntroPage"]
+layout_mode = 2
+size_flags_vertical = 0
+alignment = 0
+theme_override_constants/separation = 12
+
+[node name="FridayPortraitCol" type="VBoxContainer" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/FridayIntroPage/FridayIntroHero"]
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 6
+
+[node name="FridayIntroArt" type="TextureRect" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/FridayIntroPage/FridayIntroHero/FridayPortraitCol"]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+texture = ExtResource("9_friday_mechanic")
+texture_filter = 1
+expand_mode = 1
+stretch_mode = 5
+
+[node name="FridayIntroSpeaker" type="Label" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/FridayIntroPage/FridayIntroHero/FridayPortraitCol"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+horizontal_alignment = 1
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 14
+text = ""
+
+[node name="FridayIntroBody" type="RichTextLabel" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/FridayIntroPage/FridayIntroHero"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+custom_minimum_size = Vector2(240, 0)
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 17
+text = ""
+
+[node name="FridayOptionsRow" type="HBoxContainer" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/FridayIntroPage"]
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 10
+
+[node name="FridayOptPanelA" type="PanelContainer" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/FridayIntroPage/FridayOptionsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+
+[node name="FridayOptStackA" type="VBoxContainer" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/FridayIntroPage/FridayOptionsRow/FridayOptPanelA"]
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 8
+
+[node name="FridayOptBadgeA" type="Label" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/FridayIntroPage/FridayOptionsRow/FridayOptPanelA/FridayOptStackA"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Вариант A"
+
+[node name="FridayOptBodyA" type="RichTextLabel" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/FridayIntroPage/FridayOptionsRow/FridayOptPanelA/FridayOptStackA"]
+layout_mode = 2
+size_flags_vertical = 0
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 15
+text = ""
+
+[node name="FridayChooseA" type="Button" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/FridayIntroPage/FridayOptionsRow/FridayOptPanelA/FridayOptStackA"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 44)
+theme_override_font_sizes/font_size = 17
+text = "Выбрать вариант A"
+
+[node name="FridayOptPanelB" type="PanelContainer" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/FridayIntroPage/FridayOptionsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+
+[node name="FridayOptStackB" type="VBoxContainer" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/FridayIntroPage/FridayOptionsRow/FridayOptPanelB"]
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 8
+
+[node name="FridayOptBadgeB" type="Label" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/FridayIntroPage/FridayOptionsRow/FridayOptPanelB/FridayOptStackB"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Вариант B"
+
+[node name="FridayOptBodyB" type="RichTextLabel" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/FridayIntroPage/FridayOptionsRow/FridayOptPanelB/FridayOptStackB"]
+layout_mode = 2
+size_flags_vertical = 0
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 15
+text = ""
+
+[node name="FridayChooseB" type="Button" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/FridayIntroPage/FridayOptionsRow/FridayOptPanelB/FridayOptStackB"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 44)
+theme_override_font_sizes/font_size = 17
+text = "Выбрать вариант B"
+
+[node name="FridayNextButton" type="Button" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/FridayIntroPage"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 50)
+theme_override_font_sizes/font_size = 20
+text = "Далее"
+
+[node name="WeekSummaryMainPage" type="VBoxContainer" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="WeekHeroRow" type="HBoxContainer" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/WeekSummaryMainPage"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="WeekMascot" type="TextureRect" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/WeekSummaryMainPage/WeekHeroRow"]
+custom_minimum_size = Vector2(104, 104)
+layout_mode = 2
+texture = ExtResource("7_mamkin")
+texture_filter = 1
+expand_mode = 1
+stretch_mode = 5
+
+[node name="WeekTitleStack" type="VBoxContainer" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/WeekSummaryMainPage/WeekHeroRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="Title" type="Label" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/WeekSummaryMainPage/WeekHeroRow/WeekTitleStack"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Неделя закрыта"
+
+[node name="Subtitle" type="Label" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/WeekSummaryMainPage/WeekHeroRow/WeekTitleStack"]
+layout_mode = 2
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 17
+text = ""
+
+[node name="SummaryScroll" type="ScrollContainer" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/WeekSummaryMainPage"]
+layout_mode = 2
+size_flags_vertical = 3
+custom_minimum_size = Vector2(0, 440)
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 1
+
+[node name="SummaryColumns" type="HBoxContainer" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/WeekSummaryMainPage/SummaryScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 20
+
+[node name="SummaryLeft" type="VBoxContainer" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/WeekSummaryMainPage/SummaryScroll/SummaryColumns"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(480, 0)
+theme_override_constants/separation = 8
+
+[node name="SummaryLeftHeading" type="Label" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/WeekSummaryMainPage/SummaryScroll/SummaryColumns/SummaryLeft"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Итоги недели"
+
+[node name="SummaryLeftBody" type="VBoxContainer" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/WeekSummaryMainPage/SummaryScroll/SummaryColumns/SummaryLeft"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Progress" type="RichTextLabel" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/WeekSummaryMainPage/SummaryScroll/SummaryColumns/SummaryLeft/SummaryLeftBody"]
+layout_mode = 2
+size_flags_horizontal = 3
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 17
+theme_override_constants/line_separation = 3
+text = ""
+
+[node name="Tasks" type="RichTextLabel" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/WeekSummaryMainPage/SummaryScroll/SummaryColumns/SummaryLeft/SummaryLeftBody"]
+layout_mode = 2
+size_flags_horizontal = 3
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 16
+text = ""
+
+[node name="Deltas" type="RichTextLabel" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/WeekSummaryMainPage/SummaryScroll/SummaryColumns/SummaryLeft/SummaryLeftBody"]
+layout_mode = 2
+size_flags_horizontal = 3
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 16
+text = ""
+
+[node name="Hints" type="RichTextLabel" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/WeekSummaryMainPage/SummaryScroll/SummaryColumns/SummaryLeft/SummaryLeftBody"]
+layout_mode = 2
+size_flags_horizontal = 3
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 15
+text = ""
+
+[node name="ColSep" type="VSeparator" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/WeekSummaryMainPage/SummaryScroll/SummaryColumns"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="SummaryRight" type="VBoxContainer" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/WeekSummaryMainPage/SummaryScroll/SummaryColumns"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_minimum_size = Vector2(480, 0)
+theme_override_constants/separation = 8
+
+[node name="EventSectionTitle" type="Label" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/WeekSummaryMainPage/SummaryScroll/SummaryColumns/SummaryRight"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Пятничный нежданчик"
+
+[node name="EventCastRow" type="HBoxContainer" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/WeekSummaryMainPage/SummaryScroll/SummaryColumns/SummaryRight"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="EventAvatar" type="TextureRect" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/WeekSummaryMainPage/SummaryScroll/SummaryColumns/SummaryRight/EventCastRow"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+texture = ExtResource("8_investor")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="EventTypeLabel" type="Label" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/WeekSummaryMainPage/SummaryScroll/SummaryColumns/SummaryRight/EventCastRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 18
+text = ""
+
+[node name="EventSpeaker" type="Label" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/WeekSummaryMainPage/SummaryScroll/SummaryColumns/SummaryRight"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = ""
+
+[node name="EventBody" type="RichTextLabel" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/WeekSummaryMainPage/SummaryScroll/SummaryColumns/SummaryRight"]
+layout_mode = 2
+size_flags_horizontal = 3
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 16
+text = ""
+
+[node name="RightColumnSpacer" type="Control" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/WeekSummaryMainPage/SummaryScroll/SummaryColumns/SummaryRight"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="EventButtons" type="HBoxContainer" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/WeekSummaryMainPage/SummaryScroll/SummaryColumns/SummaryRight"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="ChooseA" type="Button" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/WeekSummaryMainPage/SummaryScroll/SummaryColumns/SummaryRight/EventButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 56)
+theme_override_font_sizes/font_size = 18
+text = "Вариант A"
+
+[node name="ChooseB" type="Button" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box/WeekSummaryMainPage/SummaryScroll/SummaryColumns/SummaryRight/EventButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 56)
+theme_override_font_sizes/font_size = 18
+text = "Вариант B"
+
+[node name="ContinueBtn" type="Button" parent="WeekSummaryOverlay/Wrap/DialogCenter/Dialog/Box"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 58)
+theme_override_font_sizes/font_size = 22
+text = "В следующую неделю"
+
+[node name="GameOverOverlay" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="GameOverDim" type="ColorRect" parent="GameOverOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.82)
+
+[node name="GameOverWrap" type="MarginContainer" parent="GameOverOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="GameOverCenter" type="CenterContainer" parent="GameOverOverlay/GameOverWrap"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="GameOverDialog" type="PanelContainer" parent="GameOverOverlay/GameOverWrap/GameOverCenter"]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+custom_minimum_size = Vector2(600, 0)
+
+[node name="GameOverBox" type="VBoxContainer" parent="GameOverOverlay/GameOverWrap/GameOverCenter/GameOverDialog"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="GameOverTitle" type="Label" parent="GameOverOverlay/GameOverWrap/GameOverCenter/GameOverDialog/GameOverBox"]
+layout_mode = 2
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 24
+text = "Партия завершена"
+
+[node name="GameOverHero" type="HBoxContainer" parent="GameOverOverlay/GameOverWrap/GameOverCenter/GameOverDialog/GameOverBox"]
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 0
+
+[node name="GameOverPortraitCol" type="VBoxContainer" parent="GameOverOverlay/GameOverWrap/GameOverCenter/GameOverDialog/GameOverBox/GameOverHero"]
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 6
+
+[node name="GameOverArt" type="TextureRect" parent="GameOverOverlay/GameOverWrap/GameOverCenter/GameOverDialog/GameOverBox/GameOverHero/GameOverPortraitCol"]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+texture = ExtResource("11_go_burn")
+texture_filter = 1
+expand_mode = 1
+stretch_mode = 5
+
+[node name="GameOverName" type="Label" parent="GameOverOverlay/GameOverWrap/GameOverCenter/GameOverDialog/GameOverBox/GameOverHero/GameOverPortraitCol"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+horizontal_alignment = 1
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 14
+text = "Мамкин"
+
+[node name="GameOverTextCol" type="VBoxContainer" parent="GameOverOverlay/GameOverWrap/GameOverCenter/GameOverDialog/GameOverBox/GameOverHero"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="GameOverReason" type="RichTextLabel" parent="GameOverOverlay/GameOverWrap/GameOverCenter/GameOverDialog/GameOverBox/GameOverHero/GameOverTextCol"]
+layout_mode = 2
+size_flags_horizontal = 3
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 17
+text = ""
+
+[node name="GameOverAdviceHeading" type="Label" parent="GameOverOverlay/GameOverWrap/GameOverCenter/GameOverDialog/GameOverBox/GameOverHero/GameOverTextCol"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "Как избежать в следующий раз"
+
+[node name="GameOverAdvice" type="RichTextLabel" parent="GameOverOverlay/GameOverWrap/GameOverCenter/GameOverDialog/GameOverBox/GameOverHero/GameOverTextCol"]
+layout_mode = 2
+size_flags_horizontal = 3
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 15
+text = ""
+
+[node name="GameOverHint" type="Label" parent="GameOverOverlay/GameOverWrap/GameOverCenter/GameOverDialog/GameOverBox"]
+layout_mode = 2
+horizontal_alignment = 1
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 14
+text = "Ниже — скачать лог партии или начать заново."
+
+[node name="GameOverButtonRow" type="HBoxContainer" parent="GameOverOverlay/GameOverWrap/GameOverCenter/GameOverDialog/GameOverBox"]
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="GameOverSaveLog" type="Button" parent="GameOverOverlay/GameOverWrap/GameOverCenter/GameOverDialog/GameOverBox/GameOverButtonRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 48)
+theme_override_font_sizes/font_size = 19
+text = "Скачать лог"
+
+[node name="GameOverPlayAgain" type="Button" parent="GameOverOverlay/GameOverWrap/GameOverCenter/GameOverDialog/GameOverBox/GameOverButtonRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 48)
+theme_override_font_sizes/font_size = 19
+text = "Играть заново"

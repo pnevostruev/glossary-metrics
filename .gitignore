@@ -31,3 +31,9 @@ __pycache__/
 *.tar.gz
 *.rar
 
+
+# Python venvs / secrets (CustDev Lab parser)
+**/.venv/
+**/.env
+**/*.session
+**/*.session-journal

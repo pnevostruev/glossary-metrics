@@ -1,0 +1,74 @@
+[gd_scene load_steps=2 format=3 uid="uid://m4x52g8x3h76"]
+
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_0rja8"]
+
+[node name="Main" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_0rja8")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "Мамкин Единорог"
+
+[node name="Subtitle" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+text = "Главный герой: Мамкин. Ироничный стартап-сим, vertical slice на 12 недель."
+
+[node name="Metrics" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+text = "Метрики"
+
+[node name="Tasks" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+text = "Задачи"
+autowrap_mode = 2
+
+[node name="Event" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+text = "Событие"
+autowrap_mode = 2
+
+[node name="EventButtons" type="HBoxContainer" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ChooseA" type="Button" parent="Margin/VBox/EventButtons"]
+layout_mode = 2
+text = "Выбрать A"
+
+[node name="ChooseB" type="Button" parent="Margin/VBox/EventButtons"]
+layout_mode = 2
+text = "Выбрать B"
+
+[node name="NextWeek" type="Button" parent="Margin/VBox"]
+layout_mode = 2
+text = "Завершить неделю"
+
+[node name="Log" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+text = "Лог"
+autowrap_mode = 2
