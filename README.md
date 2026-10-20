@@ -5,6 +5,18 @@ This repo contains the Product Heroes glossary and related assets.
 - Main glossary: `Глоссарий Product Heroes/Глоссарий основных метрик и терминов 148669696d3544b182cb59e5b16892d7.md`
 - Key concepts: AMPU (C1 × AMPPU), C1, CAC, AMPPU, Gross/Profit
 
+## SimpleWine catalog parser (personal wine scout)
+
+Script: `scripts/simplewine_catalog.py`
+
+Parses public HTML cards on `simplewine.ru/catalog/vino/` (name, producer, vintage, volume, price, availability, VIVINO/RP/JS already printed on the card). Does not call undocumented shop APIs or bypass captcha/WAF.
+
+- `python3 scripts/simplewine_catalog.py --html saved.html` — parse a saved catalog page
+- `python3 scripts/simplewine_catalog.py` — try the live catalog, then a Wayback memento of the same URL if ServicePipe blocks
+- `--vivino-min 4.2` (default), `--max-pages 1`, `--delay 2`
+
+Live fetches from datacenter IPs are usually 403 Forbidden or a ServicePipe JS challenge. Wayback HTML is a public snapshot, not today's Moscow shelf.
+
 ## HH vacancies fetcher
 
 Script: `scripts/hh_fetch.py`
